@@ -22,7 +22,7 @@ public class FinanceRecord {
 
     private BigDecimal amount;
 
-    private String type; // INCOME, EXPENSE
+    private String type;
 
     private String category;
 
@@ -32,6 +32,6 @@ public class FinanceRecord {
 
     private String createdBy;
 
-    private LocalDateTime deletedAt; // For soft delete
+    private LocalDateTime deletedAt;
 
 }

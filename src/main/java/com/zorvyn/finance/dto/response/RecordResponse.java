@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class RecordResponse {
     private String id;
     private BigDecimal amount;
-    private String type; // INCOME, EXPENSE
+    private String type;
     private String category;
     private LocalDateTime date;
     private String notes;

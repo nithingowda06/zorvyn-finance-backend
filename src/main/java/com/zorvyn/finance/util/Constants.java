@@ -3,7 +3,7 @@ package com.zorvyn.finance.util;
 public class Constants {
     
     public static final String JWT_SECRET = "ZorvynFinanceSecretKeyThatisLongEnoughToBeSecure";
-    public static final long JWT_EXPIRATION = 86400000; // 1 day
+    public static final long JWT_EXPIRATION = 86400000;
     public static final String BEARER = "Bearer ";
     public static final String AUTH_HEADER = "Authorization";
 

@@ -20,7 +20,7 @@ public class RecordRequest {
     private BigDecimal amount;
     
     @NotBlank(message = "Type is required")
-    private String type; // INCOME, EXPENSE
+    private String type;
     
     @NotBlank(message = "Category is required")
     private String category;

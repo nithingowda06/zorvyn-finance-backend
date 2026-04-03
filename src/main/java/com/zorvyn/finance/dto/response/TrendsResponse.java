@@ -19,7 +19,7 @@ public class TrendsResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class MonthlyTrend {
-        private String month; // e.g., "2026-04"
+        private String month;
         private BigDecimal totalIncome;
         private BigDecimal totalExpenses;
     }
