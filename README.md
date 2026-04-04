@@ -205,4 +205,3 @@ Service layer unit tests are written using **JUnit 5 + Mockito**, covering:
 ---
 
 **Developed by [Nithin M](https://github.com/nithingowda06)**  
-*Backend Developer Intern Assessment — Zorvyn FinTech Pvt. Ltd.*
