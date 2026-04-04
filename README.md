@@ -135,7 +135,7 @@ http://localhost:8080/swagger-ui.html
 5. **Authenticate in Swagger**
    - Call `POST /api/auth/login` with any seeded credentials above
    - Copy the returned token
-   - Click **Authorize** (top right) and paste: `Bearer <token>`
+   - Click **Authorize** (top right) and paste: `<token>` or `Bearer <token>`
 
 ---
 
