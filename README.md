@@ -6,138 +6,203 @@
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 ## 🚀 Overview
-The **Zorvyn Finance Backend** is a high-performance, production-grade financial data processing system. Built with modern Java standards and Spring Boot, it delivers a secure and scalable foundation for financial management applications. 
+The **Zorvyn Finance Backend** is a financial data processing and access control system built with Java 17 and Spring Boot. It provides a secure, role-based REST API for managing financial records, user access, and dashboard analytics.
 
-This project demonstrates expertise in **Domain-Driven Design (DDD)**, **Restful API architecture**, and **Enterprise Security patterns**.
+This project was built as part of the Zorvyn FinTech Backend Developer Internship assessment.
 
 ---
 
 ## 🛠️ Tech Stack
-*   **Language:** Java 17
-*   **Framework:** Spring Boot 3.x
-*   **Security:** Spring Security + JWT (JSON Web Token)
-*   **Database:** MongoDB
-*   **Data Access:** Spring Data MongoDB
-*   **Documentation:** Swagger / OpenAPI 3.0
-*   **Build Tool:** Maven
+
+| Layer | Technology |
+| :--- | :--- |
+| Language | Java 17 |
+| Framework | Spring Boot 3.x |
+| Security | Spring Security + JWT |
+| Database | MongoDB |
+| Data Access | Spring Data MongoDB |
+| Documentation | Swagger / OpenAPI 3.0 |
+| Build Tool | Maven |
 
 ---
 
 ## ✨ Features
--   🔐 **JWT-Based Authentication**: Secure stateless authentication using industry-standard tokens.
--   🛡️ **Role-Based Access Control (RBAC)**: Fine-grained permissions for Admins, Analysts, and Viewers.
--   📊 **Advanced Analytics**: Real-time trending, category breakdowns, and summary insights.
--   📑 **Pagination & Filtering**: Efficient data retrieval using industry-standard query parameters.
--   💾 **Caching Strategy**: High-performance dashboard analytics with intelligent cache eviction.
--   🗑️ **Soft Delete Strategy**: Data integrity preserved through non-destructive record deletion.
--   ⚠️ **Global Exception Handling**: Standardized error responses across all API endpoints.
--   ✅ **Request Validation**: Strict JSR-303/JSR-380 validation for all incoming data.
+
+- 🔐 **JWT Authentication** — Stateless token-based auth for all secured endpoints
+- 🛡️ **Role-Based Access Control (RBAC)** — Method-level enforcement for ADMIN, ANALYST, VIEWER
+- 📊 **Dashboard Analytics** — Summary totals, trends, category breakdown, recent activity
+- 📑 **Pagination & Filtering** — Query params for type, category, date range, page, size
+- 💾 **Caching** — Dashboard endpoints cached with Spring Cache for performance
+- 🗑️ **Soft Delete** — Records and users are deactivated, not permanently removed
+- ⚠️ **Global Exception Handling** — Consistent `{ status, message, timestamp }` error shape
+- ✅ **Request Validation** — JSR-380 `@Valid` annotations on all incoming request bodies
 
 ---
 
 ## 🏗️ Project Structure
 ```text
 src/main/java/com/zorvyn/finance/
-├── config        # Configuration classes (Swagger, Caching)
-├── controller    # REST API Endpoints
-├── dto           # Request/Response Data Transfer Objects
-├── entity        # MongoDB Collections & Data Models
-├── exception     # Global Exception Handling Logic
-├── repository    # Spring Data MongoDB Repositories
-├── security      # JWT Implementation & Security Filters
-├── service       # Business Logic & Service Layer
-└── util          # Shared Constants & Utility Helpers
+├── config        # Security, JWT, Swagger, Cache configuration
+├── controller    # REST API controllers
+├── dto           # Request and Response DTOs
+├── entity        # MongoDB document models
+├── exception     # GlobalExceptionHandler + custom exceptions
+├── repository    # Spring Data MongoDB repositories
+├── security      # JWT filter, entry point, UserDetailsService, Role enum
+├── service       # Business logic layer
+└── util          # Constants and shared helpers
 ```
 
 ---
 
 ## 🔐 Permission Matrix (RBAC)
-The system enforces a strict permission matrix using **Spring Security Method-Level validation**:
 
 | Capability | Viewer | Analyst | Admin |
 | :--- | :---: | :---: | :---: |
-| **View Dashboard Summary** | ✅ | ✅ | ✅ |
-| **View Trends & Breakdown** | ❌ | ✅ | ✅ |
-| **View Financial Records** | ✅ | ✅ | ✅ |
-| **Create/Update Records** | ❌ | ✅ | ✅ |
-| **Delete Records (Soft)** | ❌ | ❌ | ✅ |
-| **Manage Users & Roles** | ❌ | ❌ | ✅ |
+| View Dashboard Summary | ✅ | ✅ | ✅ |
+| View Trends & Category Breakdown | ❌ | ✅ | ✅ |
+| View Financial Records | ❌ | ✅ | ✅ |
+| Create / Update Records | ❌ | ✅ | ✅ |
+| Delete Records (Soft) | ❌ | ❌ | ✅ |
+| Manage Users & Roles | ❌ | ❌ | ✅ |
+
+> **Assumption:** VIEWER role is restricted to dashboard summary only. This reflects a read-only stakeholder who needs high-level visibility without access to raw transaction data.
 
 ---
 
 ## 🧠 Design Choices & Assumptions
 
-### 1. Account Deactivation vs. Physical Delete
-For financial auditability, the system uses a **Soft Deactivation** approach for users (`toggle-status`). This ensures history is preserved while blocking access. If a user is explicitly "Deleted", we prefix their username (`DELETED_`) to free up the original namespace for future registration.
+### 1. Soft Delete for Users and Records
+All deletes are non-destructive. For records, a `deletedAt` timestamp is set. For users, the username is prefixed with `DELETED_` to free the namespace while preserving history. This is important for financial auditability.
 
-### 2. Audit Trail (`createdBy`)
-The `createdBy` field for financial entries is extracted directly from the **JWT SecurityContext** at the service layer, preventing any client-side tampering or spoofing of data ownership.
+### 2. `createdBy` Extracted from JWT
+The `createdBy` field on financial records is extracted from the JWT `SecurityContext` at the service layer — never from the request body. This prevents client-side spoofing of data ownership.
 
-### 3. Data Seeding Strategy
-- The app automatically seeds default users: `admin`, `analyst`, and `viewer` on the first run.
-- **Test Credentials**: A production-ready account `nithin` (password: `nithin`) is seeded for immediate evaluation.
+### 3. Inactive User Blocking
+If a user's status is set to inactive via `toggle-status`, their JWT is rejected at the filter level even if the token is still valid. This ensures immediate access revocation.
+
+### 4. Data Seeding on Startup
+The application automatically seeds three default users on first run for immediate testing:
+
+| Username | Password | Role |
+| :--- | :--- | :--- |
+| `admin` | `admin123` | ADMIN |
+| `analyst` | `analyst123` | ANALYST |
+| `viewer` | `viewer123` | VIEWER |
+
+---
+
+## ⚖️ Tradeoffs
+
+| Decision | Reason | Production Alternative |
+| :--- | :--- | :--- |
+| MongoDB over relational DB | Flexible schema for evolving financial record fields | PostgreSQL for complex joins and strict ACID guarantees |
+| In-memory cache (ConcurrentMapCache) | Simple setup, no external dependency | Redis for distributed caching across instances |
+| No rate limiting | Out of scope for this assessment | Spring Rate Limiter or API Gateway throttling |
+| Soft delete over hard delete | Preserves audit trail for financial data | Configurable purge policy after retention period |
+| Embedded seeded users | Easier reviewer setup | Admin-only user creation endpoint in production |
 
 ---
 
 ## 💻 How to Run Locally
 
 ### Prerequisites
-- **Java 17** installed.
-- **Maven** installed.
-- **MongoDB** running on `localhost:27017`.
+- Java 17
+- Maven
+- MongoDB running on `localhost:27017`
 
-### Steps to Run
-1.  **Clone the repository**:
-    ```bash
-    git clone https://github.com/nithingowda06/zorvyn-finance-backend.git
-    cd zorvyn-finance-backend
-    ```
-2.  **Build the project**:
-    ```bash
-    mvn clean install
-    ```
-3.  **Run the application**:
-    ```bash
-    mvn spring-boot:run
-    ```
-4.  **Access Swagger Documentation**:
-    Open [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) to explore the API.
+### Steps
+
+1. **Clone the repository**
+```bash
+   git clone https://github.com/nithingowda06/zorvyn-finance-backend.git
+   cd zorvyn-finance-backend
+```
+
+2. **Build the project**
+```bash
+   mvn clean install
+```
+
+3. **Run the application**
+```bash
+   mvn spring-boot:run
+```
+
+4. **Open Swagger UI**
+http://localhost:8080/swagger-ui.html
+
+5. **Authenticate in Swagger**
+   - Call `POST /api/auth/login` with any seeded credentials above
+   - Copy the returned token
+   - Click **Authorize** (top right) and paste: `Bearer <token>`
 
 ---
 
 ## 🧪 Testing with Postman
+
 A pre-configured Postman collection is included in the project root:
-1.  Locate `zorvyn-finance-backend.postman_collection.json`.
-2.  Import it into Postman (**File -> Import**).
-3.  The collection includes pre-configured environment variables for easy authentication and testing.
+
+1. Locate `zorvyn-finance-backend.postman_collection.json`
+2. Import into Postman via **File → Import**
+3. Use the seeded credentials to authenticate and explore all endpoints
 
 ---
 
-## 🌟 Why This Project Stands Out (Recruiter Insights)
--   **Production Readiness**: Implements real-world patterns like soft deletes, caching, and custom exception handling.
--   **Security First**: RBAC is handled at the method level using standard Spring Security annotations.
--   **High Observability**: Fully documented with Swagger, making it easy for frontend developers to integrate.
--   **Scalable Architecture**: Decoupled layers (Controller -> Service -> Repository) ensure maintainability and testability.
+## 📈 API Reference
 
----
+### 🔑 Auth (`/api/auth`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| POST | `/api/auth/register` | Public | Register a new user |
+| POST | `/api/auth/login` | Public | Login and receive JWT token |
 
-## 📈 API Specification Summary
+### 👤 User Management (`/api/users`) — Admin only
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| GET | `/api/users` | ADMIN | List all users |
+| GET | `/api/users/{id}` | ADMIN | Get user by ID |
+| POST | `/api/users` | ADMIN | Create a new user |
+| PATCH | `/api/users/{id}/role` | ADMIN | Update user role |
+| PATCH | `/api/users/{id}/toggle-status` | ADMIN | Activate or deactivate user |
+| DELETE | `/api/users/{id}` | ADMIN | Soft delete a user |
 
 ### 🧾 Financial Records (`/api/records`)
-- `GET /`: Retrieve records with **Industry-Standard Pagination** and **Dynamic Filtering**.
-- `GET /{id}`: Retrieve full details for a specific record.
-- `POST /`: Create a new entry (automatically assigns `createdBy`).
-- `PUT /{id}`: Update an existing entry.
-- `DELETE /{id}`: Perform a **Soft Delete**.
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| GET | `/api/records` | ANALYST, ADMIN | List records with pagination and filters |
+| GET | `/api/records/{id}` | ANALYST, ADMIN | Get a single record by ID |
+| POST | `/api/records` | ANALYST, ADMIN | Create a new financial record |
+| PUT | `/api/records/{id}` | ANALYST, ADMIN | Update an existing record |
+| DELETE | `/api/records/{id}` | ADMIN | Soft delete a record |
 
-### 📊 Dashboard Analytics (`/api/dashboard`)
-- `GET /summary`: High-level totals (Cached for performance).
-- `GET /trends?period=monthly|weekly`: Time-series data for growth analysis.
-- `GET /category-breakdown`: Distribution of funds across various categories.
-- `GET /recent-activity`: Snapshot of the latest system interactions.
+**Supported query parameters for `GET /api/records`:**
+- `type` — `INCOME` or `EXPENSE`
+- `category` — e.g. `food`, `rent`, `salary`
+- `from` — start date (`yyyy-MM-dd`)
+- `to` — end date (`yyyy-MM-dd`)
+- `page` — page number (default: 0)
+- `size` — page size (default: 10)
+
+### 📊 Dashboard (`/api/dashboard`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| GET | `/api/dashboard/summary` | VIEWER, ANALYST, ADMIN | Total income, expenses, net balance |
+| GET | `/api/dashboard/trends` | ANALYST, ADMIN | Monthly or weekly time-series data |
+| GET | `/api/dashboard/category-breakdown` | ANALYST, ADMIN | Totals grouped by category |
+| GET | `/api/dashboard/recent-activity` | ANALYST, ADMIN | Latest 10 transactions |
 
 ---
 
-**Developed by [Nithin M](https://github.com/nithingowda06)**
-*Finance Backend Developer Assignment - Zorvyn FinTech*
+## 🧪 Unit Tests
 
+Service layer unit tests are written using **JUnit 5 + Mockito**, covering:
+- `AuthService` — register, login, duplicate user, bad credentials
+- `RecordService` — create, update, soft delete, filter logic
+- `DashboardService` — summary calculations, empty data edge cases
+- `UserService` — role assignment, inactive user handling
+
+---
+
+**Developed by [Nithin M](https://github.com/nithingowda06)**  
+*Backend Developer Intern Assessment — Zorvyn FinTech Pvt. Ltd.*
