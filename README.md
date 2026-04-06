@@ -199,10 +199,10 @@ A pre-configured Postman collection is included in the project root:
 ## 🧪 Unit Tests
 
 Service layer unit tests are written using **JUnit 5 + Mockito**, covering:
-- `AuthService` — register, login, duplicate user, bad credentials
-- `RecordService` — create, update, soft delete, filter logic
-- `DashboardService` — summary calculations, empty data edge cases
-- `UserService` — role assignment, inactive user handling
+- `AuthService` -> register, login, duplicate user, bad credentials
+- `RecordService` —> create, update, soft delete, filter logic
+- `DashboardService` —> summary calculations, empty data edge cases
+- `UserService` —> role assignment, inactive user handling
 
 ---
 
