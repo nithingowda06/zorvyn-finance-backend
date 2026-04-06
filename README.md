@@ -113,26 +113,28 @@ The application automatically seeds three default users on first run for immedia
 
 ### Steps
 
-1. **Clone the repository**
+1. **Open Terminal / Command Prompt**
+
+2. **Clone the repository**
 ```bash
    git clone https://github.com/nithingowda06/zorvyn-finance-backend.git
    cd zorvyn-finance-backend
 ```
 
-2. **Build the project**
+3. **Build the project**
 ```bash
    mvn clean install
 ```
 
-3. **Run the application**
+4. **Run the application**
 ```bash
    mvn spring-boot:run
 ```
 
-4. **Open Swagger UI**
+5. **Open Swagger UI**
 http://localhost:8080/swagger-ui.html
 
-5. **Authenticate in Swagger**
+6. **Authenticate in Swagger**
    - Call `POST /api/auth/login` with any seeded credentials above
    - Copy the returned token
    - Click **Authorize** (top right) and paste: `<token>` (Swagger automatically adds "Bearer" prefix) or `Bearer <token>`
